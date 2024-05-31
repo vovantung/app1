@@ -15,7 +15,7 @@ phases:
       - echo See the contents of the current directory
       - ls
       - echo "[Build] Building Spring Boot application with Gradle..."
-      - ./gradlew build
+      - mvn clean install
       - echo Again see the contents
       - ls
       - echo Build started on `date`
