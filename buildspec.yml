@@ -5,19 +5,15 @@ phases:
     runtime-versions:
       java: corretto17
     commands:
-      - echo "[Install] Installing Gradle..."
+      - echo "[Install] Installing..."
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1
   build:
     commands:
-      - echo See the contents of the current directory
-      - ls
-      - echo "[Build] Building Spring Boot application with Gradle..."
+      - echo "[Build] Building Spring Boot application with mvn..."
       - mvn clean install
-      - echo Again see the contents
-      - ls
       - echo Build started on `date`
       - echo Building the Docker image...
       - docker build --platform linux/arm64 -t app1:latest .
