@@ -16,7 +16,7 @@ phases:
       - mvn clean install
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build --platform linux/arm64 -t app1:latest .
+      - docker build -t app1:latest .
       - docker tag app1:latest 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:latest
   post_build:
     commands:
