@@ -9,6 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class Api {
     @GetMapping("/health-check")
     public String healthCheck(){
-        return "Võ Thị Ngọc Uyên";
+        return "Võ Văn Tùng\r\nPhan Thị Xuyên \r\nVõ Thị Ngọc Uyên";
     }
 }
