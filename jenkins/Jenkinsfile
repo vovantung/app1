@@ -18,14 +18,17 @@ pipeline {
                sh '''
                    cd app1
                    mvn clean install
-                   ls 
+                
                '''
                   }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t app1:3.0 .'
+                sh '''
+                cd app1
+                docker build -t app1:3.0 .
+                '''
             }
         }
         stage('Deploy to Minikube') {
