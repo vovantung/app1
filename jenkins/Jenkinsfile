@@ -2,8 +2,12 @@ pipeline {
     agent any
     stages {
         stage('Clone') {
-            steps {
-                git branch: 'main', url: 'https://github.com/vovantung/app1.git'
+           steps {
+                sh '''
+                git clone https://github.com/vovantung/app1.git
+                cd app1
+                git status
+                '''
             }
         }
         stage('Build Docker Image') {
