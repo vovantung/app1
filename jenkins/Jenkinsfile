@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    environment {
+            KUBECONFIG = credentials('kubeconfig-id')
+        }
     stages {
         stage('Clone') {
 //            steps {
