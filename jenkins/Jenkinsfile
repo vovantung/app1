@@ -31,7 +31,8 @@ pipeline {
         stage('Deploy to Minikube') {
             steps {
                 sh '''
-                    kubectl apply -f deployment.yaml
+                kubectl cluster-info
+//                     kubectl apply -f deployment.yaml
                 '''
             }
         }
