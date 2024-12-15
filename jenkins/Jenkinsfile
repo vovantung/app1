@@ -1,8 +1,9 @@
 pipeline {
     agent any
     environment {
-            KUBECONFIG = credentials('kubeconfig-id')
+            KUBECONFIG = '/var/jenkins_home/.kube/config'
         }
+        
     stages {
         stage('Clone') {
 //            steps {
