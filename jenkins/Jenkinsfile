@@ -29,8 +29,8 @@ pipeline {
             steps {
                 sh '''
                 docker build -t app1:1.0 .
-                docker tag app1:1.0 192.168.49.2:5000/app1:1.0
-                docker push 192.168.49.2:5000/app1:1.0
+                docker tag app1:1.0 192.168.49.2:51953/app1:1.0
+                docker push 192.168.49.2:51953/app1:1.0
                 '''
             }
         }
