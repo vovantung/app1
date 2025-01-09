@@ -38,7 +38,7 @@ spec:
     spec:
       containers:
         - name: app1
-          image:   192.168.1.24:5000/app1:1.0 # Replace with your service-a image
+          image: 192.168.1.24:5000/app1:1.0 # Replace with your service-a image
           ports:
             - containerPort: 8080
 ---
