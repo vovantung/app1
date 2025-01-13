@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class Api {
     @GetMapping("/health-check")
     public String healthCheck(){
-        log.info("Võ Thị Ngọc Uyên");
-        return "Võ Thị Ngọc Uyên";
+        log.info("Võ Văn Tùng");
+        return "Võ Văn Tùng";
     }
 }
