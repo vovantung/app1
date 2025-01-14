@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping
 public class Api {
+    public static int count = 0;
     @GetMapping("/health-check")
     public String healthCheck(){
-        log.info("Võ Văn TùngA");
-        return "Võ Văn TùngA";
+        count++;
+        log.info("count: " + count);
+        return "count: " + count;
     }
 }

@@ -1,33 +1,9 @@
-#apiVersion: apps/v1
-#kind: Deployment
-#metadata:
-#  name: app1
-#spec:
-#  replicas: 0
-#  selector:
-#    matchLabels:
-#      app: app1
-#  template:
-#    metadata:
-#      labels:
-#        app: app1
-#    spec:
-#      containers:
-#        - name: app1
-#          image: app1:1.0
-#          ports:
-#            - containerPort: 8080
-#
-#
-#
-#
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: app1
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: app1
@@ -38,16 +14,17 @@ spec:
     spec:
       containers:
         - name: app1
-          image: 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:2.0 # Replace with your service-a image
+          image: 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:1.0
           ports:
             - containerPort: 8080
       imagePullSecrets:
         - name: ecr-secret
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: app1
+  name: ClusterIP-app1
 spec:
   selector:
     app: app1
@@ -55,3 +32,19 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: NodePort-app1
+spec:
+  selector:
+    app: app1
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30001 # Cổng tùy chọn (30000-32767)
+  type: NodePort
