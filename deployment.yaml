@@ -24,7 +24,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ClusterIP-app1
+  name: cluster-ip-app1
 spec:
   selector:
     app: app1
@@ -38,7 +38,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: NodePort-app1
+  name: node-port-app1
 spec:
   selector:
     app: app1
