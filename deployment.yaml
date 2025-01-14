@@ -38,7 +38,7 @@ spec:
     spec:
       containers:
         - name: app1
-          image: 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:1.0 # Replace with your service-a image
+          image: 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:2.0 # Replace with your service-a image
           ports:
             - containerPort: 8080
       imagePullSecrets:
