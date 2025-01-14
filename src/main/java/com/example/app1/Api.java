@@ -14,6 +14,6 @@ public class Api {
     public String healthCheck(){
         count++;
         log.info("count: " + count);
-        return "count: " + count;
+        return "Võ Thị Ngọc Uyên";
     }
 }
