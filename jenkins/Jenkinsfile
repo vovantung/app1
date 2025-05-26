@@ -25,16 +25,34 @@ pipeline {
                   }
         }
 
+        stages {
+                stage('Get App Version') {
+                    steps {
+                        script {
+                            def version = sh(script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout", returnStdout: true).trim()
+                            env.APP_VERSION = version
+                        }
+                    }
+                }
+
         stage('Build Docker Image') {
             steps {
                 sh '''
-                docker build -t app1 .
-                docker tag app1:latest 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:latest
+                docker build -t app1:${APP_VERSION} .
+                docker tag app1:${APP_VERSION} 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:${APP_VERSION}
                 aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com
-                docker push 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:latest
+                docker push 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:${APP_VERSION}
                 '''
             }
         }
+        stage('Prepare Deployment YAML') {
+                    steps {
+                        sh '''
+                        cp deployment.yaml.template deployment.yaml
+                        sed -i "s/__VERSION__/${APP_VERSION}/g" deployment.yaml
+                        '''
+                    }
+                }
         stage('Deploy to Minikube') {
             steps {
                 sh '''
