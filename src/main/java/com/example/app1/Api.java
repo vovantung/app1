@@ -13,7 +13,7 @@ public class Api {
     @GetMapping("/health-check")
     public String healthCheck(){
         count++;
-        log.info("BBBBB");
-        return "BBBB";
+        log.info("QQQ");
+        return "QQQ";
     }
 }
