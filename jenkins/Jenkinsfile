@@ -28,22 +28,18 @@ pipeline {
         stage('Get App Version') {
             steps {
                 script {
-                    sh '''
-                                    mvn -B help:evaluate -Dexpression=project.version -q -DforceStdout > version.txt
-                                '''
-                                def rawVersion = readFile('version.txt').trim()
+                   sh '''
+                                   mvn -B help:evaluate -Dexpression=project.version -q -DforceStdout > version.txt
+                               '''
+                               def rawVersion = readFile('version.txt').trim()
 
-                                // Cách 1: Dùng regex xóa escape ANSI nếu nhận dạng được
-                                def ansiFree = rawVersion.replaceAll(/\u001B\[[0-9;]*[mK]/, '')
+                               // Loại bỏ toàn bộ ký tự không in được (non-printable ASCII)
+                               def cleanVersion = rawVersion.replaceAll(/[^\x21-\x7E]/, '')
 
-                                // Cách 2: Nếu vẫn lỗi, lọc ký tự in được (an toàn tuyệt đối)
-                                def cleanVersion = ansiFree.replaceAll('[^\\x20-\\x7E]', '')
+                               echo "Raw Version: >>>${rawVersion}<<<"
+                               echo "Final Clean Version: ${cleanVersion}"
 
-                                echo "Raw Version: >>>${rawVersion}<<<"
-                                echo "ANSI-Free: >>>${ansiFree}<<<"
-                                echo "Final Clean Version: ${cleanVersion}"
-
-                                env.APP_VERSION = cleanVersion
+                               env.APP_VERSION = cleanVersion
 
                 }
             }
