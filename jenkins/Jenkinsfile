@@ -29,7 +29,9 @@ pipeline {
                             steps {
                                 script {
                               def version = sh(
-                                              script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout | tr -cd 'a-zA-Z0-9.-'",
+                                              script: '''
+                                                  mvn help:evaluate -Dexpression=project.version -q -DforceStdout | tr -cd 'a-zA-Z0-9.-'
+                                              ''',
                                               returnStdout: true
                                           ).trim()
                                           echo "App Version: ${version}"
