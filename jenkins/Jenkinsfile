@@ -28,18 +28,21 @@ pipeline {
         stage('Get App Version') {
             steps {
                 script {
-                   sh '''
-                                   mvn -B help:evaluate -Dexpression=project.version -q -DforceStdout > version.txt
-                               '''
-                               def rawVersion = readFile('version.txt').trim()
+                  // Bước 1: Ghi version ra file, loại bỏ ANSI escape bằng sed
+                              sh '''
+                                  mvn -B -Dstyle.color=never help:evaluate -Dexpression=project.version -q -DforceStdout \
+                                      | sed -E 's/\\x1B\\[[0-9;]*[a-zA-Z]//g' > version.txt
+                              '''
 
-                               // Loại bỏ toàn bộ ký tự không in được (non-printable ASCII)
-                               def cleanVersion = rawVersion.replaceAll(/[^\x21-\x7E]/, '')
+                              // Bước 2: Đọc file và tiếp tục làm sạch từ Groovy
+                              def rawVersion = readFile('version.txt').trim()
+                              echo "Raw Version: >>>${rawVersion}<<<"
 
-                               echo "Raw Version: >>>${rawVersion}<<<"
-                               echo "Final Clean Version: ${cleanVersion}"
+                              // Bước 3: Xoá ký tự không in được, nếu còn
+                              def cleanVersion = rawVersion.replaceAll(/[^\x20-\x7E]/, '')
+                              echo "Clean Version: >>>${cleanVersion}<<<"
 
-                               env.APP_VERSION = cleanVersion
+                              env.APP_VERSION = cleanVersion
 
                 }
             }
