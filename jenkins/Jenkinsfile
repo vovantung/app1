@@ -28,18 +28,15 @@ pipeline {
         stage('Get App Version') {
             steps {
                 script {
-                    // Gọi Maven và ghi version ra file
-                                sh """
+                    sh """
                                     mvn -B help:evaluate -Dexpression=project.version -q -DforceStdout > version.txt
                                 """
-
-                                // Đọc và làm sạch chuỗi
                                 def rawVersion = readFile('version.txt').trim()
 
-                                // Regex xóa mã màu ANSI: \u001B hoặc \x1b + mã điều khiển
-                                def ansiFree = rawVersion.replaceAll(/\x1B\[[0-9;]*[mK]/, '')
+                                // Xoá mã màu ANSI kiểu ESC [..m
+                                def ansiFree = rawVersion.replaceAll(/\x1B\[[0-9;]*m/, '')
 
-                                // Sau đó xóa các ký tự không hợp lệ (nếu còn)
+                                // Xoá các ký tự ngoài a-z, A-Z, 0-9, ., -, _
                                 def version = ansiFree.replaceAll('[^a-zA-Z0-9._-]', '')
 
                                 echo "Raw Version: >>>${rawVersion}<<<"
