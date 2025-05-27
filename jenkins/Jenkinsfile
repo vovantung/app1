@@ -29,10 +29,11 @@ pipeline {
                             steps {
                                 script {
                                    def version = sh(
-                                       script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/[^a-zA-Z0-9.-]//g'",
-                                       returnStdout: true
-                                   ).trim()
-                                   env.APP_VERSION = version
+                                                           script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout",
+                                                           returnStdout: true
+                                                       ).trim()
+                                                       def safeVersion = version.replaceAll("[^a-zA-Z0-9.-]", "-")
+                                                       env.APP_VERSION = safeVersion
                                 }
                             }
                         }

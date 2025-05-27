@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: app1
+  labels:
+    app: app1
 spec:
   replicas: 1
   selector:
@@ -15,5 +17,21 @@ spec:
       containers:
         - name: app1
           image: 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:__VERSION__
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
+      imagePullSecrets:
+        - name: ecr-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app1-service
+spec:
+  selector:
+    app: app1
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 8080
+      nodePort: 30001
