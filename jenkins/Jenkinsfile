@@ -28,10 +28,12 @@ pipeline {
         stage('Get App Version') {
                             steps {
                                 script {
-                                def version = sh(
-                                    script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout | tr -dc '[:alnum:].-'",
-                                    returnStdout: true
-                                ).trim()
+                               def version = sh(
+                                               script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout | tr -dc '[:alnum:].-'",
+                                               returnStdout: true
+                                           ).trim()
+                                           echo "🔢 App Version: ${version}"
+                                           env.APP_VERSION = version
                                 }
 
                             }
