@@ -26,6 +26,20 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: cluster-ip-app1
+spec:
+  selector:
+    app: app1
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: node-port-app1
 spec:
   selector:
