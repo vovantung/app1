@@ -26,25 +26,31 @@ pipeline {
         }
 
         stage('Get App Version') {
-                            steps {
-                                script {
+            steps {
+                script {
+                    // Gọi Maven và ghi version ra file
+                                sh """
+                                    mvn -B help:evaluate -Dexpression=project.version -q -DforceStdout > version.txt
+                                """
 
-                             // Ghi kết quả ra file tạm
-                                         sh """
-                                             mvn -B -Dstyle.color=never help:evaluate -Dexpression=project.version -q -DforceStdout > version.txt
-                                         """
+                                // Đọc và làm sạch chuỗi
+                                def rawVersion = readFile('version.txt').trim()
 
-                                         // Đọc file, trim, và loại bỏ ANSI bằng Groovy
-                                         def rawVersion = readFile('version.txt').trim()
-                                         def version = rawVersion.replaceAll('[^a-zA-Z0-9._-]', '')
-                                         echo "Raw Version: >>>${rawVersion}<<<"
-                                         echo "Clean Version: ${version}"
+                                // Regex xóa mã màu ANSI: \u001B hoặc \x1b + mã điều khiển
+                                def ansiFree = rawVersion.replaceAll(/\x1B\[[0-9;]*[mK]/, '')
 
-                                         env.APP_VERSION = version
-                                }
+                                // Sau đó xóa các ký tự không hợp lệ (nếu còn)
+                                def version = ansiFree.replaceAll('[^a-zA-Z0-9._-]', '')
 
-                            }
-                        }
+                                echo "Raw Version: >>>${rawVersion}<<<"
+                                echo "ANSI-Free: >>>${ansiFree}<<<"
+                                echo "Final Clean Version: ${version}"
+
+                                env.APP_VERSION = version
+
+                }
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
@@ -67,12 +73,7 @@ pipeline {
         stage('Deploy to Minikube') {
             steps {
                 sh '''
-                    if kubectl get svc node-port-app1; then
-                                    echo 'Service already exists. Skipping creation...'
-                                    kubectl apply -f deployment.yaml --force-conflicts=true
-                                else
-                                    kubectl apply -f deployment.yaml
-                                fi
+                    kubectl apply -f deployment.yaml
                 '''
             }
         }
