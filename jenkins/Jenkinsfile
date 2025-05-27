@@ -60,7 +60,12 @@ pipeline {
         stage('Deploy to Minikube') {
             steps {
                 sh '''
-                    kubectl apply -f deployment.yaml
+                    if kubectl get svc app1-service; then
+                                    echo 'Service already exists. Skipping creation...'
+                                    kubectl apply -f deployment.yaml --force-conflicts=true
+                                else
+                                    kubectl apply -f deployment.yaml
+                                fi
                 '''
             }
         }
