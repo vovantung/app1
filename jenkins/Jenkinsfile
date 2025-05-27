@@ -36,13 +36,13 @@ pipeline {
 
                               // Bước 2: Đọc file và tiếp tục làm sạch từ Groovy
                               def rawVersion = readFile('version.txt').trim()
-                              echo "Raw Version: >>>${rawVersion}<<<"
+//                               echo "Raw Version: >>>${rawVersion}<<<"
 
                               // Bước 3: Xoá ký tự không in được, nếu còn
-                              def cleanVersion = rawVersion.replaceAll(/[^\x20-\x7E]/, '')
-                              echo "Clean Version: >>>${cleanVersion}<<<"
+//                               def cleanVersion = rawVersion.replaceAll(/[^\x20-\x7E]/, '')
+//                               echo "Clean Version: >>>${cleanVersion}<<<"
 
-                              env.APP_VERSION = cleanVersion
+                              env.APP_VERSION = rawVersion
 
                 }
             }
