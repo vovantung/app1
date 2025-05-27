@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping
 public class Api {
     public static int count = 0;
-    @GetMapping("/health-check")
-    public String healthCheck(){
+    @GetMapping("/test1")
+    public String test1(){
         count++;
         log.info("Phan Xuyen");
         return "Phan Xuyen";
