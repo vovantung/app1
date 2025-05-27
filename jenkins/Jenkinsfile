@@ -29,16 +29,18 @@ pipeline {
                             steps {
                                 script {
 
-                              def rawVersion = sh(
-                                              script: "mvn -B -Dstyle.color=never help:evaluate -Dexpression=project.version -q -DforceStdout",
-                                              returnStdout: true
-                                          ).trim()
+                             // Ghi kết quả ra file tạm
+                                         sh """
+                                             mvn -B -Dstyle.color=never help:evaluate -Dexpression=project.version -q -DforceStdout > version.txt
+                                         """
 
-                                          // Xóa mọi ký tự control (bao gồm ANSI escape codes)
-                                          def version = rawVersion.replaceAll('[^a-zA-Z0-9._-]', '')
-                                          echo "App Version: ${version}"
+                                         // Đọc file, trim, và loại bỏ ANSI bằng Groovy
+                                         def rawVersion = readFile('version.txt').trim()
+                                         def version = rawVersion.replaceAll('[^a-zA-Z0-9._-]', '')
+                                         echo "Raw Version: >>>${rawVersion}<<<"
+                                         echo "Clean Version: ${version}"
 
-                                          env.APP_VERSION = version
+                                         env.APP_VERSION = version
                                 }
 
                             }
@@ -65,7 +67,7 @@ pipeline {
         stage('Deploy to Minikube') {
             steps {
                 sh '''
-                    if kubectl get svc app1-service; then
+                    if kubectl get svc node-port-app1; then
                                     echo 'Service already exists. Skipping creation...'
                                     kubectl apply -f deployment.yaml --force-conflicts=true
                                 else

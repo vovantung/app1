@@ -26,7 +26,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: app1-service
+  name: node-port-app1
 spec:
   selector:
     app: app1
