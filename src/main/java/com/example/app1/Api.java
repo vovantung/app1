@@ -13,7 +13,7 @@ public class Api {
     @GetMapping("/test1")
     public String test1(){
         count++;
-        log.info("Tùng Xuyên Uyên");
-        return "Tùng Xuyên Uyên";
+        log.info("Tùng");
+        return "Tùng";
     }
 }
