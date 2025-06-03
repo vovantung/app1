@@ -1,10 +1,10 @@
 pipeline {
     agent any
-    environment {
-//             KUBECONFIG = '/var/jenkins_home/.kube/config'
-//             KUBECONFIG='/var/lib/jenkins/.kube/config'
-//             KUBECONFIG= '/home/phan/.kube/config'
-    }
+//     environment {
+// //             KUBECONFIG = '/var/jenkins_home/.kube/config'
+// //             KUBECONFIG='/var/lib/jenkins/.kube/config'
+// //             KUBECONFIG= '/home/phan/.kube/config'
+//     }
 
     stages {
         stage('Clone') {
