@@ -57,7 +57,9 @@ spec:
       steps {
         container('kaniko') {
           sh '''
+            echo "APP_VERSION=${APP_VERSION}"
             export IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${APP_VERSION}
+            echo "IMAGE=$IMAGE"
 
             /kaniko/executor \
               --context=. \
