@@ -61,9 +61,9 @@ pipeline {
           containers:
               - name: kaniko
                 image: gcr.io/kaniko-project/executor:latest
-              volumeMounts:
-                - name: kaniko-secret
-                  mountPath: /kaniko/.docker
+                volumeMounts:
+                   - name: kaniko-secret
+                   mountPath: /kaniko/.docker
           volumes:
             - name: kaniko-secret
               secret:
