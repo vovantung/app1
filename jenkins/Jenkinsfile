@@ -13,14 +13,6 @@ pipeline {
 
     stages {
         stage('Clone') {
-//            steps {
-//                 sh '''
-//                 git clone https://github.com/vovantung/app1.git
-//                 cd app1
-//                 git status
-//                 '''
-//             }
-
             steps{
                 git branch: 'main', url: 'https://github.com/vovantung/app1.git'
             }
@@ -51,43 +43,44 @@ pipeline {
             }
         }
 
+
+
         stage('Build Image with Kaniko') {
-              agent {
-                kubernetes {
-                  yaml """
+          agent {
+            kubernetes {
+              yaml """
         apiVersion: v1
         kind: Pod
         spec:
           containers:
             - name: kaniko
               image: gcr.io/kaniko-project/executor:latest
+              args:
+                - "--dockerfile=Dockerfile"
+                - "--context=dir://workspace"
+                - "--destination=\${AWS_ACCOUNT_ID}.dkr.ecr.\${AWS_REGION}.amazonaws.com/\${IMAGE_NAME}:\${APP_VERSION}"
+                - "--insecure"
+                - "--skip-tls-verify"
+                - "--verbosity=info"
               tty: true
               volumeMounts:
-                 - name: kaniko-secret
-                   mountPath: /kaniko/.docker
+                - name: kaniko-secret
+                  mountPath: /kaniko/.docker
           volumes:
             - name: kaniko-secret
               secret:
                 secretName: ecr-secret
         """
-                }
-              }
-              steps {
-                container('kaniko') {
-                  sh '''
-                    export IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${APP_VERSION}
-
-                    /kaniko/executor \
-                      --context=. \
-                      --dockerfile=Dockerfile \
-                      --destination=$IMAGE \
-                      --insecure \
-                      --skip-tls-verify \
-                      --verbosity=info
-                  '''
-                }
-              }
             }
+          }
+          steps {
+            container('kaniko') {
+              echo "Building image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${APP_VERSION}"
+            }
+          }
+        }
+
+
 
 //         stage('Build Docker Image') {
 //             steps {
