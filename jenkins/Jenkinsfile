@@ -45,40 +45,46 @@ pipeline {
 
 
 
-        stage('Build Image with Kaniko') {
-          agent {
-            kubernetes {
-              yaml """
-        apiVersion: v1
-        kind: Pod
-        spec:
-          containers:
-            - name: kaniko
-              image: gcr.io/kaniko-project/executor:latest
-              args:
-                - "--dockerfile=Dockerfile"
-                - "--context=dir://workspace"
-                - "--destination=\${AWS_ACCOUNT_ID}.dkr.ecr.\${AWS_REGION}.amazonaws.com/\${IMAGE_NAME}:\${APP_VERSION}"
-                - "--insecure"
-                - "--skip-tls-verify"
-                - "--verbosity=info"
-              tty: true
-              volumeMounts:
-                - name: kaniko-secret
-                  mountPath: /kaniko/.docker
-          volumes:
-            - name: kaniko-secret
-              secret:
-                secretName: ecr-secret
-        """
-            }
-          }
-          steps {
-            container('kaniko') {
-              echo "Building image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${APP_VERSION}"
-            }
-          }
-        }
+       stage('Build Image with Kaniko') {
+         agent {
+           kubernetes {
+             yaml """
+       apiVersion: v1
+       kind: Pod
+       spec:
+         containers:
+           - name: kaniko
+             image: gcr.io/kaniko-project/executor:latest
+             args:
+               - "sleep"
+               - "9999999"
+             tty: true
+             volumeMounts:
+               - name: kaniko-secret
+                 mountPath: /kaniko/.docker
+         volumes:
+           - name: kaniko-secret
+             secret:
+               secretName: ecr-secret
+       """
+           }
+         }
+         steps {
+           container('kaniko') {
+             sh '''
+               export IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${APP_VERSION}
+
+               /kaniko/executor \
+                 --context=. \
+                 --dockerfile=Dockerfile \
+                 --destination=$IMAGE \
+                 --insecure \
+                 --skip-tls-verify \
+                 --verbosity=info
+             '''
+           }
+         }
+       }
 
 
 
