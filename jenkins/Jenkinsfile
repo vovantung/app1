@@ -60,8 +60,10 @@ pipeline {
         spec:
           containers:
             - name: kaniko
-              image: gcr.io/kaniko-project/executor:latest
-              command: [ "cat" ]
+              image: 'gcr.io/kaniko-project/executor:latest',
+              ttyEnabled: true,
+              command: '/busybox/sh',
+              args: ['-c', 'cat'],
               tty: true
               volumeMounts:
                 - name: kaniko-secret
