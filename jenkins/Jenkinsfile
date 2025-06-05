@@ -59,7 +59,7 @@ pipeline {
         kind: Pod
         spec:
           containers:
-            - name: kaniko
+            - name: kaniko,
               image: 'gcr.io/kaniko-project/executor:latest',
               ttyEnabled: true,
               command: '/busybox/sh',
