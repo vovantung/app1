@@ -53,11 +53,10 @@ pipeline {
        kind: Pod
        spec:
          containers:
-           - name: kaniko
-             image: gcr.io/kaniko-project/executor:latest
-             args:
-               - "sleep"
-               - "9999999"
+          - name: kaniko
+            image: gcr.io/kaniko-project/executor:latest
+             command: [ "sh" ]
+             args: [ "-c", "sleep 999999" ]
              tty: true
              volumeMounts:
                - name: kaniko-secret
