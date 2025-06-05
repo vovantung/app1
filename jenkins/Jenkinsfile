@@ -1,9 +1,37 @@
 pipeline {
-    agent any
+  agent {
+    kubernetes {
+      yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:latest
+      command:
+        - cat
+      tty: true
+      volumeMounts:
+        - name: kaniko-secret
+          mountPath: /kaniko/.docker
+  volumes:
+    - name: kaniko-secret
+      secret:
+        secretName: ecr-secret
+"""
+    }
+  }
+
+
+
     environment {
 //             KUBECONFIG = '/var/jenkins_home/.kube/config'
             KUBECONFIG='/var/lib/jenkins/.kube/config'
 //             KUBECONFIG= '/home/phan/.kube/config'
+
+    AWS_ACCOUNT_ID = '211125364313'  // 🔁 Thay bằng tài khoản thật
+    AWS_REGION     = 'ap-southeast-1'
+    IMAGE_NAME     = 'app1'          // 🔁 Tên repo trên ECR
     }
 
     stages {
@@ -46,16 +74,34 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Image with Kaniko') {
             steps {
-                sh '''
-                docker build -t app1:${APP_VERSION} .
-                docker tag app1:${APP_VERSION} 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:${APP_VERSION}
-                aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com
-                docker push 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:${APP_VERSION}
-                '''
+                container('kaniko') {
+                    sh '''
+                        export IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${APP_VERSION}
+
+                        /kaniko/executor \
+                        --context=. \
+                        --dockerfile=Dockerfile \
+                        --destination=$IMAGE \
+                        --insecure \
+                        --skip-tls-verify \
+                        --verbosity=info
+                    '''
+                }
             }
         }
+
+//         stage('Build Docker Image') {
+//             steps {
+//                 sh '''
+//                 docker build -t app1:${APP_VERSION} .
+//                 docker tag app1:${APP_VERSION} 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:${APP_VERSION}
+//                 aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com
+//                 docker push 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:${APP_VERSION}
+//                 '''
+//             }
+//         }
 
         stage('Prepare Deployment YAML') {
             steps {
