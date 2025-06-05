@@ -1,118 +1,94 @@
 pipeline {
   agent any
 
-    environment {
-//             KUBECONFIG = '/var/jenkins_home/.kube/config'
-            KUBECONFIG='/var/lib/jenkins/.kube/config'
-//             KUBECONFIG= '/home/phan/.kube/config'
-
-    AWS_ACCOUNT_ID = '211125364313'  // 🔁 Thay bằng tài khoản thật
+  environment {
+    KUBECONFIG = '/var/lib/jenkins/.kube/config'
+    AWS_ACCOUNT_ID = '211125364313'  // Thay bằng tài khoản thật
     AWS_REGION     = 'ap-southeast-1'
-    IMAGE_NAME     = 'app1'          // 🔁 Tên repo trên ECR
+    IMAGE_NAME     = 'app1'          // Tên repo trên ECR
+  }
+
+  stages {
+    stage('Clone') {
+      steps {
+        git branch: 'main', url: 'https://github.com/vovantung/app1.git'
+      }
     }
 
-    stages {
-        stage('Clone') {
-            steps{
-                git branch: 'main', url: 'https://github.com/vovantung/app1.git'
-            }
-        }
-
-        stage('Build app') {
-            steps {
-               sh '''
-                   mvn clean install
-               '''
-            }
-        }
-
-        stage('Get App Version') {
-            steps {
-                script {
-                    // Bước 1: Ghi version ra file, loại bỏ ANSI escape bằng sed
-                    sh '''
-                         mvn -B -Dstyle.color=never help:evaluate -Dexpression=project.version -q -DforceStdout \
-                        | sed -E 's/\\x1B\\[[0-9;]*[a-zA-Z]//g' > version.txt
-                    '''
-
-                    // Bước 2: Đọc file và tiếp tục làm sạch từ Groovy
-                    def rawVersion = readFile('version.txt').trim()
-                    // echo "Raw Version: >>>${rawVersion}<<<"
-                    env.APP_VERSION = rawVersion
-                }
-            }
-        }
-
-
-
-       stage('Build Image with Kaniko') {
-         agent {
-           kubernetes {
-             yaml """
-       apiVersion: v1
-       kind: Pod
-       spec:
-         containers:
-          - name: kaniko
-            image: gcr.io/kaniko-project/executor:latest
-             command: [ "sh" ]
-             args: [ "-c", "sleep 999999" ]
-             tty: true
-             volumeMounts:
-               - name: kaniko-secret
-                 mountPath: /kaniko/.docker
-         volumes:
-           - name: kaniko-secret
-             secret:
-               secretName: ecr-secret
-       """
-           }
-         }
-         steps {
-           container('kaniko') {
-             sh '''
-               export IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${APP_VERSION}
-
-               /kaniko/executor \
-                 --context=. \
-                 --dockerfile=Dockerfile \
-                 --destination=$IMAGE \
-                 --insecure \
-                 --skip-tls-verify \
-                 --verbosity=info
-             '''
-           }
-         }
-       }
-
-
-
-//         stage('Build Docker Image') {
-//             steps {
-//                 sh '''
-//                 docker build -t app1:${APP_VERSION} .
-//                 docker tag app1:${APP_VERSION} 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:${APP_VERSION}
-//                 aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com
-//                 docker push 211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:${APP_VERSION}
-//                 '''
-//             }
-//         }
-
-        stage('Prepare Deployment YAML') {
-            steps {
-                sh '''
-                    cp deployment.yaml.template deployment.yaml
-                    sed -i "s/__VERSION__/${APP_VERSION}/g" deployment.yaml
-                '''
-            }
-        }
-
-        stage('Deploy to Minikube') {
-            steps {
-                sh '''
-                    kubectl apply -f deployment.yaml
-                '''
-            }
-        }
+    stage('Build app') {
+      steps {
+        sh 'mvn clean install'
+      }
     }
+
+    stage('Get App Version') {
+      steps {
+        script {
+          sh '''
+            mvn -B -Dstyle.color=never help:evaluate -Dexpression=project.version -q -DforceStdout \
+              | sed -E 's/\\x1B\\[[0-9;]*[a-zA-Z]//g' > version.txt
+          '''
+          env.APP_VERSION = readFile('version.txt').trim()
+        }
+      }
+    }
+
+    stage('Build Image with Kaniko') {
+      agent {
+        kubernetes {
+          yaml '''
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:latest
+      command:
+        - sh
+      args:
+        - -c
+        - sleep 999999
+      tty: true
+      volumeMounts:
+        - name: kaniko-secret
+          mountPath: /kaniko/.docker
+  volumes:
+    - name: kaniko-secret
+      secret:
+        secretName: ecr-secret
+'''
+        }
+      }
+      steps {
+        container('kaniko') {
+          sh '''
+            export IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${APP_VERSION}
+
+            /kaniko/executor \
+              --context=. \
+              --dockerfile=Dockerfile \
+              --destination=$IMAGE \
+              --insecure \
+              --skip-tls-verify \
+              --verbosity=info
+          '''
+        }
+      }
+    }
+
+    stage('Prepare Deployment YAML') {
+      steps {
+        sh '''
+          cp deployment.yaml.template deployment.yaml
+          sed -i "s/__VERSION__/${APP_VERSION}/g" deployment.yaml
+        '''
+      }
+    }
+
+    stage('Deploy to Minikube') {
+      steps {
+        sh 'kubectl apply -f deployment.yaml'
+      }
+    }
+  }
 }
