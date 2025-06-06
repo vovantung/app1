@@ -56,18 +56,14 @@ spec:
       }
       steps {
         container('kaniko') {
-          sh '''
-            echo "APP_VERSION=${APP_VERSION}"
-            export IMAGE=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${IMAGE_NAME}:${APP_VERSION}
-            echo "IMAGE=$IMAGE"
 
+          def image = "211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:${APP_VERSION}"
+          sh '''
             /kaniko/executor \
-              --context=. \
-              --dockerfile=Dockerfile \
-              --destination=$IMAGE \
-              --insecure \
-              --skip-tls-verify \
-              --verbosity=info
+              --context=\$WORKSPACE \
+              --dockerfile=\$WORKSPACE/app1/Dockerfile \
+              --destination=${image} \
+              --skip-tls-verify
           '''
         }
       }
