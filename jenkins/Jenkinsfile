@@ -56,13 +56,11 @@ spec:
       }
       steps {
         container('kaniko') {
-
-          def image = "211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:${APP_VERSION}"
           sh '''
             /kaniko/executor \
               --context=\$WORKSPACE \
               --dockerfile=\$WORKSPACE/app1/Dockerfile \
-              --destination=${image} \
+              --destination=211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:${APP_VERSION} \
               --skip-tls-verify
           '''
         }
