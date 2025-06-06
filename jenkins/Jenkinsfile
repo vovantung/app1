@@ -3,9 +3,9 @@ pipeline {
 
   environment {
     KUBECONFIG = '/var/lib/jenkins/.kube/config'
-    AWS_ACCOUNT_ID = '211125364313'  // Thay bằng tài khoản thật
+    AWS_ACCOUNT_ID = '211125364313'
     AWS_REGION     = 'ap-southeast-1'
-    IMAGE_NAME     = 'app1'          // Tên repo trên ECR
+    IMAGE_NAME     = 'app1'
   }
 
   stages {
@@ -36,7 +36,7 @@ pipeline {
     stage('Build Image with Kaniko') {
       agent {
         kubernetes {
-          yaml '''
+          yaml """
 apiVersion: v1
 kind: Pod
 spec:
@@ -47,20 +47,24 @@ spec:
       volumeMounts:
         - name: kaniko-secret
           mountPath: /kaniko/.docker
+        - name: workspace-volume
+          mountPath: /home/jenkins/agent
   volumes:
     - name: kaniko-secret
       secret:
         secretName: ecr-secret
-'''
+    - name: workspace-volume
+      emptyDir: {}
+"""
         }
       }
       steps {
         container('kaniko') {
           sh '''
             /kaniko/executor \
-              --context=\$WORKSPACE \
-              --dockerfile=\$WORKSPACE/app1/Dockerfile \
-              --destination=211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:${APP_VERSION} \
+              --context=$WORKSPACE \
+              --dockerfile=$WORKSPACE/Dockerfile \
+              --destination=211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:$APP_VERSION \
               --skip-tls-verify
           '''
         }
