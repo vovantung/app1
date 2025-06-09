@@ -15,19 +15,14 @@ podTemplate(
             image: 'gcr.io/kaniko-project/executor:latest',
             ttyEnabled: true,
             command: '/kaniko/executor',
-            args: """
-                --dockerfile=Dockerfile
-                --context=/workspace
-                --destination=${ECR_IMAGE}:${IMAGE_TAG}
-                --verbosity=info
-            """,
+            args: "--dockerfile=Dockerfile --context=/workspace --destination=${ECR_IMAGE}:${IMAGE_TAG} --verbosity=info",
             workingDir: '/workspace'
         )
     ],
     volumes: [
         secretVolume(
             mountPath: '/kaniko/.docker',
-            secretName: 'ecr-secret' // secret chứa config.json đã login ECR
+            secretName: 'ecr-secret'
         ),
         emptyDirVolume(mountPath: '/workspace')
     ]
@@ -35,15 +30,20 @@ podTemplate(
     node('kaniko-maven-pod') {
 
         stage('Checkout') {
-            checkout scm
+            // Đảm bảo code nằm trong /workspace để kaniko sử dụng
+            dir('/workspace') {
+                checkout scm
+            }
         }
 
         stage('Maven Build') {
             container('maven') {
-                sh 'mvn clean package -DskipTests'
+                dir('/workspace') {
+                    sh 'mvn clean package -DskipTests'
+                }
             }
         }
 
-        // Không cần stage build kaniko nữa vì kaniko container đã tự build khi chạy
+        // Không cần stage Kaniko vì container đã build khi start
     }
 }
