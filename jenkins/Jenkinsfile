@@ -14,8 +14,6 @@ spec:
       tty: true
     - name: maven
       image: maven:3.9.4-eclipse-temurin-17
-      command:
-        - cat
       tty: true
       volumeMounts:
         - name: workspace-volume
