@@ -13,16 +13,21 @@ podTemplate(
         containerTemplate(
             name: 'kaniko',
             image: 'gcr.io/kaniko-project/executor:latest',
-            command: '',
-            args: '',
             ttyEnabled: true,
+            command: '/kaniko/executor',
+            args: """
+                --dockerfile=Dockerfile
+                --context=/workspace
+                --destination=${ECR_IMAGE}:${IMAGE_TAG}
+                --verbosity=info
+            """,
             workingDir: '/workspace'
         )
     ],
     volumes: [
         secretVolume(
             mountPath: '/kaniko/.docker',
-            secretName: 'ecr-secret' // <- secret chứa docker config.json đã login ECR
+            secretName: 'ecr-secret' // secret chứa config.json đã login ECR
         ),
         emptyDirVolume(mountPath: '/workspace')
     ]
@@ -39,16 +44,6 @@ podTemplate(
             }
         }
 
-        stage('Docker Build & Push with Kaniko') {
-            container('kaniko') {
-                sh """
-                    /kaniko/executor \
-                      --dockerfile=Dockerfile \
-                      --context=/workspace \
-                      --destination=${ECR_IMAGE}:${IMAGE_TAG} \
-                      --verbosity=info
-                """
-            }
-        }
+        // Không cần stage build kaniko nữa vì kaniko container đã tự build khi chạy
     }
 }
