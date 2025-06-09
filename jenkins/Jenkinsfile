@@ -1,48 +1,71 @@
-def ECR_IMAGE = "123456789012.dkr.ecr.ap-southeast-1.amazonaws.com/app1"
-def IMAGE_TAG = "build-${env.BUILD_NUMBER}"
+pipeline {
+    agent {
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    jenkins/jenkins-kaniko: "true"
+spec:
+  containers:
+  - name: maven
+    image: maven:3.9.6-eclipse-temurin-17
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: maven-cache
+      mountPath: /root/.m2
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:latest
+    args:
+    - --dockerfile=/workspace/Dockerfile
+    - --context=/workspace/
+    - --destination=${DOCKER_IMAGE}
+    - --verbosity=debug
+    volumeMounts:
+    - name: docker-config
+      mountPath: /kaniko/.docker/
+  volumes:
+  - name: docker-config
+    secret:
+      secretName: ecr-secret
+  - name: maven-cache
+    emptyDir: {}
+  restartPolicy: Never
+"""
+        }
+    }
 
-podTemplate(
-    label: 'kaniko-maven-pod',
-    containers: [
-        containerTemplate(
-            name: 'maven',
-            image: 'maven:3.9.6-eclipse-temurin-17',
-            command: '',
-            ttyEnabled: true
-        ),
-        containerTemplate(
-            name: 'kaniko',
-            image: 'gcr.io/kaniko-project/executor:latest',
-            ttyEnabled: true,
-            args: "--dockerfile=Dockerfile --context=/workspace --destination=${ECR_IMAGE}:${IMAGE_TAG} --verbosity=info",
-            workingDir: '/workspace'
-        )
-    ],
-    volumes: [
-        secretVolume(
-            mountPath: '/kaniko/.docker',
-            secretName: 'ecr-secret'
-        ),
-        emptyDirVolume(mountPath: '/workspace')
-    ]
-) {
-    node('kaniko-maven-pod') {
+    environment {
+        DOCKER_IMAGE = "211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:latest"
+    }
 
+    stages {
         stage('Checkout') {
-            // Đảm bảo code nằm trong /workspace để kaniko sử dụng
-            dir('/workspace') {
-                checkout scm
+            steps {
+                container('maven') {
+                    checkout scm
+                }
             }
         }
 
-        stage('Maven Build') {
-            container('maven') {
-                dir('/workspace') {
+        stage('Build with Maven') {
+            steps {
+                container('maven') {
                     sh 'mvn clean package -DskipTests'
                 }
             }
         }
 
-        // Không cần stage Kaniko vì container đã build khi start
+        stage('Build & Push Docker Image') {
+            steps {
+                container('kaniko') {
+                    // Kaniko sẽ chạy tự động nhờ args đã cấu hình trong podTemplate
+                    echo "Kaniko started..."
+                }
+            }
+        }
     }
 }
