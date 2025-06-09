@@ -19,7 +19,7 @@ spec:
         - name: workspace-volume
           mountPath: /workspace
     - name: kaniko
-      image: gcr.io/kaniko-project/executor:latest
+      image: gcr.io/kaniko-project/executor:v1.23.0
       tty: true
       volumeMounts:
         - name: workspace-volume
@@ -59,10 +59,11 @@ spec:
             steps {
                 container('kaniko') {
                     sh '''
+                        DESTINATION="$ECR_REGISTRY/$IMAGE_NAME:$IMAGE_TAG"
                         /kaniko/executor \
                           --context=/workspace \
                           --dockerfile=/workspace/Dockerfile \
-                          --destination=${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} \
+                          --destination=$DESTINATION \
                           --verbosity=info \
                           --reproducible \
                           --cache=false \
