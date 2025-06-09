@@ -9,6 +9,9 @@ metadata:
     some-label: kaniko
 spec:
   containers:
+    - name: jnlp
+      image: jenkins/inbound-agent:latest
+      tty: true
     - name: maven
       image: maven:3.9-eclipse-temurin-17
       command:
