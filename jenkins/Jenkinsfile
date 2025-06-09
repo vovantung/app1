@@ -14,7 +14,6 @@ podTemplate(
             name: 'kaniko',
             image: 'gcr.io/kaniko-project/executor:latest',
             ttyEnabled: true,
-            command: '/kaniko/executor',
             args: "--dockerfile=Dockerfile --context=/workspace --destination=${ECR_IMAGE}:${IMAGE_TAG} --verbosity=info",
             workingDir: '/workspace'
         )
