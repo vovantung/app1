@@ -8,7 +8,7 @@ spec:
   containers:
   - name: test
     image: alpine
-    command: ['sh', '-c', 'echo Hello from Kubernetes agent']
+    tty: true
   - name: jnlp
     image: jenkins/inbound-agent:latest
     tty: true
