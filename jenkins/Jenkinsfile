@@ -9,9 +9,13 @@ spec:
   - name: test
     image: alpine
     command: ['sh', '-c', 'echo Hello from Kubernetes agent']
+  - name: jnlp
+    image: jenkins/inbound-agent:latest
+    tty: true
 """
     }
   }
+
   stages {
     stage('Test') {
       steps {
