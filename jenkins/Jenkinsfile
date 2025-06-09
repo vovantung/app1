@@ -1,4 +1,7 @@
 pipeline {
+ environment {
+        DOCKER_IMAGE = "211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:latest"
+    }
     agent {
         kubernetes {
             yaml """
@@ -22,7 +25,7 @@ spec:
     args:
     - --dockerfile=/workspace/Dockerfile
     - --context=/workspace/
-    - --destination=${DOCKER_IMAGE}
+    - --destination=211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:latest
     - --verbosity=debug
     volumeMounts:
     - name: docker-config
@@ -38,9 +41,7 @@ spec:
         }
     }
 
-    environment {
-        DOCKER_IMAGE = "211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:latest"
-    }
+
 
     stages {
         stage('Checkout') {
