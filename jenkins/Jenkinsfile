@@ -1,61 +1,28 @@
 pipeline {
-    agent {
-        kubernetes {
-            yaml """
+  agent {
+    kubernetes {
+      yaml """
 apiVersion: v1
 kind: Pod
-metadata:
-  labels:
-    some-label: kaniko
 spec:
   containers:
-    - name: jnlp
-      image: jenkins/inbound-agent:latest
-      tty: true
-    - name: maven
-      image: maven:3.9-eclipse-temurin-17
-      command:
-        - cat
-      tty: true
-    - name: kaniko
-      image: gcr.io/kaniko-project/executor:latest
-      tty: true
-      volumeMounts:
-        - name: docker-config
-          mountPath: /kaniko/.docker/
-  volumes:
-    - name: docker-config
-      secret:
-        secretName: ecr-secret
+  - name: test
+    image: alpine
+    tty: true
+  - name: jnlp
+    image: jenkins/inbound-agent:latest
+    tty: true
 """
-        }
     }
+  }
 
-    environment {
-        DOCKER_IMAGE = "211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:latest"
-    }
-
-    stages {
-        stage('Build with Maven') {
-            steps {
-                container('maven') {
-                    sh 'mvn clean install'
-                }
-            }
+  stages {
+    stage('Test') {
+      steps {
+        container('test') {
+          sh 'echo "Jenkins agent chạy trong pod Kubernetes thành công!"'
         }
-
-        stage('Build & Push Image with Kaniko') {
-            steps {
-                container('kaniko') {
-                    sh '''
-                    /kaniko/executor \
-                      --context `pwd` \
-                      --dockerfile `pwd`/Dockerfile \
-                      --destination=${DOCKER_IMAGE} \
-                      --verbosity=debug
-                    '''
-                }
-            }
-        }
+      }
     }
+  }
 }
