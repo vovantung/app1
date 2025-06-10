@@ -40,5 +40,17 @@ spec:
         }
       }
     }
+
+    stage('Clone & Build with Maven') {
+      steps {
+        container('maven') {
+          sh '''
+            mvn clean package -DskipTests
+            cp -r . /workspace/
+          '''
+        }
+      }
+    }
+
   }
 }
