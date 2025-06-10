@@ -6,6 +6,9 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
+  - name: jnlp
+      image: jenkins/inbound-agent:latest
+      tty: true
   - name: kaniko
     image: gcr.io/kaniko-project/executor:debug
     command: ['cat']
@@ -15,9 +18,6 @@ spec:
         mountPath: /workspace
       - name: docker-config
         mountPath: /kaniko/.docker
-  - name: jnlp
-    image: jenkins/inbound-agent:latest
-    tty: true
   volumes:
     - name: workspace-volume
       emptyDir: {}
@@ -32,7 +32,7 @@ spec:
     stage('Test') {
       steps {
         container('kaniko') {
-//           sh 'echo "Jenkins agent chạy trong pod Kubernetes thành công!"'
+          sh 'echo "Jenkins agent chạy trong pod Kubernetes thành công!"'
         }
       }
     }
