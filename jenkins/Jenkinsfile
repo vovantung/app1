@@ -13,6 +13,9 @@ spec:
     image: maven:3.9-eclipse-temurin-17
     command: ['cat']
     tty: true
+    volumeMounts:
+      - name: workspace-volume
+        mountPath: /workspace
   - name: kaniko
     image: gcr.io/kaniko-project/executor:debug
     command: ['cat']
