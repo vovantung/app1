@@ -64,14 +64,17 @@ spec:
       steps {
         container('kaniko') {
           sh '''
+            echo ">>> Checking workspace content:"
+            ls -la /workspace
+            echo ">>> Start Kaniko build"
             /kaniko/executor \
-            --context=/workspace \
-            --dockerfile=/workspace/Dockerfile \
-            --destination=${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} \
-            --verbosity=info \
-            --reproducible \
-            --cache=false \
-            --skip-tls-verify
+              --context=/workspace \
+              --dockerfile=/workspace/Dockerfile \
+              --destination=${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} \
+              --verbosity=info \
+              --reproducible \
+              --cache=false \
+              --skip-tls-verify
           '''
         }
       }
