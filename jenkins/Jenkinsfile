@@ -40,7 +40,27 @@ spec:
   }
 
   stages {
-    stage('Test') {
+
+    stage('Clone Source') {
+      steps {
+        container('maven') {
+          git url: 'https://github.com/vovantung/app1.git', branch: 'main'
+        }
+      }
+    }
+
+    stage('Clone & Build with Maven') {
+      steps {
+        container('maven') {
+          sh '''
+            mvn clean package -DskipTests
+            cp -r . /workspace/
+          '''
+        }
+      }
+    }
+
+    stage('Kaniko build, push image to ecr') {
       steps {
         container('kaniko') {
           sh '''
@@ -57,16 +77,7 @@ spec:
       }
     }
 
-    stage('Clone & Build with Maven') {
-      steps {
-        container('maven') {
-          sh '''
-            mvn clean package -DskipTests
-            cp -r . /workspace/
-          '''
-        }
-      }
-    }
+
 
   }
 }
