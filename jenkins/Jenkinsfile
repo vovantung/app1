@@ -71,6 +71,10 @@ spec:
             ls -la /workspace
             echo ">>> Start Kaniko build"
             ls -la /workspace/target
+            echo ">>> Check if Docker config is mounted:"
+            ls -la /kaniko/.docker
+            echo ">>> Print config.json:"
+            cat /kaniko/.docker/config.json || echo "config.json NOT FOUND!"
             /kaniko/executor \
               --context=/workspace \
               --dockerfile=/dockerfile \
