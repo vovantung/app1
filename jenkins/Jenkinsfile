@@ -30,7 +30,7 @@ spec:
       emptyDir: {}
     - name: docker-config
       secret:
-        secretName: ecr-secret  # <- Tên secret chứa config để push ECR
+        secretName: docker-to-ecr-secret  # <- Tên secret chứa config để push ECR
 """
     }
   }
