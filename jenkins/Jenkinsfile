@@ -9,6 +9,10 @@ spec:
   - name: jnlp
     image: jenkins/inbound-agent:latest
     tty: true
+  - name: maven
+    image: maven:3.9-eclipse-temurin-17
+    command: ['cat']
+    tty: true
   - name: kaniko
     image: gcr.io/kaniko-project/executor:debug
     command: ['cat']
@@ -23,7 +27,7 @@ spec:
       emptyDir: {}
     - name: docker-config
       secret:
-        secretName: ecr-secrett  # <- Tên secret chứa config để push ECR
+        secretName: ecr-secret  # <- Tên secret chứa config để push ECR
 """
     }
   }
