@@ -7,7 +7,7 @@ kind: Pod
 spec:
   containers:
   - name: test
-    image: gcr.io/kaniko-project/executor:latest
+    image: alpine
     tty: true
   - name: jnlp
     image: jenkins/inbound-agent:latest
@@ -20,7 +20,7 @@ spec:
     stage('Test') {
       steps {
         container('test') {
-          sh 'echo "Jenkins agent chạy trong pod Kubernetes thành công!"'
+//           sh 'echo "Jenkins agent chạy trong pod Kubernetes thành công!"'
         }
       }
     }
