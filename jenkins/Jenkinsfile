@@ -6,8 +6,8 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
-  - name: test
-    image: alpine
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:latest
     tty: true
     volumeMounts:
       - name: workspace-volume
@@ -30,7 +30,7 @@ spec:
   stages {
     stage('Test') {
       steps {
-        container('test') {
+        container('kaniko') {
 //           sh 'echo "Jenkins agent chạy trong pod Kubernetes thành công!"'
         }
       }
