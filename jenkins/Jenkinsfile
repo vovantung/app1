@@ -68,9 +68,9 @@ spec:
         container('kaniko') {
           sh '''
             echo ">>> Checking workspace content:"
-            ls -la /workspace/workspace
+            ls -la /workspace
             echo ">>> Start Kaniko build"
-            ls -la /workspace/workspace/target
+            ls -la /workspace/target
             /kaniko/executor \
               --context=/workspace \
               --dockerfile=/workspace/Dockerfile \
