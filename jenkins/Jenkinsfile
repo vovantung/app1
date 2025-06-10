@@ -7,7 +7,7 @@ kind: Pod
 spec:
   containers:
   - name: test
-    image: alpine
+    image: gcr.io/kaniko-project/executor:latest
     tty: true
   - name: jnlp
     image: jenkins/inbound-agent:latest
