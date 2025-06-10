@@ -54,8 +54,7 @@ spec:
         container('maven') {
           sh '''
             mvn clean package -DskipTests
-            # Copy toàn bộ nội dung repo (kể cả Dockerfile) vào /workspace
-            tar -cf - . | tar -xf - -C /workspace
+            cp -r . /workspace/
           '''
         }
       }
@@ -66,9 +65,9 @@ spec:
         container('kaniko') {
           sh '''
             echo ">>> Checking workspace content:"
-            ls -la /workspace
+            ls -la /workspace/workspace
             echo ">>> Start Kaniko build"
-            ls -la /workspace/target
+            ls -la /workspace/workspace/target
             /kaniko/executor \
               --context=/workspace \
               --dockerfile=/workspace/Dockerfile \
