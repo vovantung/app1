@@ -73,7 +73,7 @@ spec:
             ls -la /workspace/target
             /kaniko/executor \
               --context=/workspace \
-              --dockerfile=/Dockerfile \
+              --dockerfile=/dockerfile \
               --destination=${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} \
               --verbosity=info \
               --reproducible \
