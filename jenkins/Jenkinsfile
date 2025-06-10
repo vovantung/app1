@@ -9,9 +9,20 @@ spec:
   - name: test
     image: alpine
     tty: true
+    volumeMounts:
+      - name: workspace-volume
+        mountPath: /workspace
+      - name: docker-config
+        mountPath: /kaniko/.docker
   - name: jnlp
     image: jenkins/inbound-agent:latest
     tty: true
+  volumes:
+    - name: workspace-volume
+      emptyDir: {}
+    - name: docker-config
+      secret:
+        secretName: ecr-secret  # <- Tên secret chứa config để push ECR
 """
     }
   }
