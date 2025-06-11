@@ -75,10 +75,11 @@ spec:
             sh '''
               mvn -B -Dstyle.color=never help:evaluate -Dexpression=project.version -q -DforceStdout \
                             | sed -E 's/\\x1B\\[[0-9;]*[a-zA-Z]//g' > version.txt
+              cp -r . /workspace/
             '''
              env.APP_VERSION = readFile('version.txt').trim()
 //              writeFile file: '/workspace/APP_VERSION.txt', text: env.APP_VERSION
-             cp -r . /workspace/
+
           }
         }
       }
