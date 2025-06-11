@@ -5,14 +5,20 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
+
   dnsPolicy: ClusterFirst
   dnsConfig:
     options:
       - name: ndots
         value: "1"
+  serviceAccountName: jenkins-sa
   containers:
   - name: jnlp
     image: jenkins/inbound-agent:latest
+    tty: true
+  - name: kubectl
+    image: vothinhuydt/jenkins-agent-kubectl:latest
+    command: ['cat']
     tty: true
   - name: maven
     image: maven:3.9-eclipse-temurin-17
@@ -21,8 +27,6 @@ spec:
     volumeMounts:
       - name: workspace-volume
         mountPath: /workspace
-      - name: shared-deploy
-        mountPath: /workspace/shared-deploy
   - name: kaniko
     image: gcr.io/kaniko-project/executor:debug
     command: ['cat']
@@ -49,10 +53,6 @@ spec:
   volumes:
     - name: workspace-volume
       emptyDir: {}
-    - name: shared-deploy
-      hostPath:
-        path: /var/jenkins_home/shared-deploy
-        type: DirectoryOrCreate
 """
     }
   }
@@ -133,24 +133,17 @@ spec:
               echo $APP_VERSION
               cp deployment.yaml.template deployment.yaml
               sed -i "s/__VERSION__/$APP_VERSION/g" deployment.yaml
-
-              # Copy sang thư mục chung giữa pod và Jenkins controller
-              cp deployment.yaml /workspace/shared-deploy/
-              ls -la /workspace/shared-deploy
             '''
           }
         }
       }
     }
 
-
-
-
-//     stage('Deploy to Minikube') {
-//       steps {
-//         sh 'kubectl apply -f deployment.yaml'
-//       }
-//     }
+    stage('Test Deployment') {
+      steps {
+        sh 'kubectl get nodes'
+      }
+    }
 
   }
 }
