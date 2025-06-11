@@ -20,6 +20,9 @@ spec:
     image: vothinhuydt/jenkins-agent-kubectl:latest
     command: ['cat']
     tty: true
+    volumeMounts:
+      - name: workspace-volume
+        mountPath: /workspace
   - name: maven
     image: maven:3.9-eclipse-temurin-17
     command: ['cat']
@@ -145,6 +148,8 @@ spec:
           script {
             sh '''
               kubectl get nodes
+              ls -la
+              cat deployment.yaml
             '''
           }
         }
