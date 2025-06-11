@@ -104,10 +104,6 @@ spec:
             ls -la /workspace
             echo ">>> Checking folder target/ content:"
             ls -la /workspace/target
-            echo ">>> Check if credentials aws is mounted:"
-            ls -la /kaniko/.aws
-            echo ">>> Print credentials:"
-            cat /kaniko/.aws/credentials || echo "credentials NOT FOUND!"
             echo ">>> Start Kaniko build"
             /kaniko/executor \
               --context=/workspace \
@@ -137,11 +133,32 @@ spec:
       }
     }
 
-//     stage('Deploy to Minikube') {
-//       steps {
-//         sh 'kubectl apply -f deployment.yaml'
-//       }
-//     }
+    stage('Copy deployment.yaml to Jenkins Controller') {
+      agent { label 'master' } // hoặc node có kubectl
+      environment {
+        NAMESPACE = 'jenkins'
+        LOCAL_PATH = 'deployment.yaml'
+        REMOTE_PATH = '/workspace/deployment.yaml'
+      }
+      steps {
+        script {
+          sh '''
+            echo "🔍 Tìm pod Kaniko đang chạy trong namespace $NAMESPACE..."
+            POD_NAME=$(kubectl get pods -n $NAMESPACE -o jsonpath="{.items[?(@.spec.containers[*].name=='kaniko')].metadata.name}" | awk '{print $1}')
+
+            echo "📥 Sao chép file deployment.yaml từ pod $POD_NAME về $LOCAL_PATH"
+            kubectl cp $NAMESPACE/$POD_NAME:$REMOTE_PATH $LOCAL_PATH
+          '''
+        }
+      }
+    }
+
+
+    stage('Deploy to Minikube') {
+      steps {
+        sh 'kubectl apply -f deployment.yaml'
+      }
+    }
 
   }
 }
