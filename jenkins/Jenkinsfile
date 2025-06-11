@@ -143,10 +143,10 @@ spec:
       steps {
         script {
           sh '''
-            echo "🔍 Tìm pod Kaniko đang chạy trong namespace $NAMESPACE..."
+            echo "Tìm pod Kaniko đang chạy trong namespace $NAMESPACE..."
             POD_NAME=$(kubectl get pods -n $NAMESPACE -o jsonpath="{.items[?(@.spec.containers[*].name=='kaniko')].metadata.name}" | awk '{print $1}')
 
-            echo "📥 Sao chép file deployment.yaml từ pod $POD_NAME về $LOCAL_PATH"
+            echo "Sao chép file deployment.yaml từ pod $POD_NAME về $LOCAL_PATH"
             kubectl cp $NAMESPACE/$POD_NAME:$REMOTE_PATH $LOCAL_PATH
           '''
         }
