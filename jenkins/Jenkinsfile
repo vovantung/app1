@@ -134,7 +134,7 @@ spec:
     }
 
     stage('Copy deployment.yaml to Jenkins Controller') {
-      agent { label 'master' } // hoặc node có kubectl
+      agent { label 'control-plane' } // hoặc node có kubectl
       environment {
         NAMESPACE = 'jenkins'
         LOCAL_PATH = 'deployment.yaml'
