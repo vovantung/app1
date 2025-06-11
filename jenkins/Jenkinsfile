@@ -76,7 +76,8 @@ spec:
             | sed -E 's/\\x1B\\[[0-9;]*[a-zA-Z]//g' > version.txt
           '''
           env.APP_VERSION = readFile('version.txt').trim()
-          writeFile file: '/APP_VERSION.txt', text: env.APP_VERSION
+//           writeFile file: '/APP_VERSION.txt', text: env.APP_VERSION
+          echo env.APP_VERSION
         }
       }
     }
