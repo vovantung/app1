@@ -76,16 +76,8 @@ spec:
             | sed -E 's/\\x1B\\[[0-9;]*[a-zA-Z]//g' > version.txt
           '''
           env.APP_VERSION = readFile('version.txt').trim()
+          writeFile file: '/workspace/APP_VERSION.txt', text: env.APP_VERSION
         }
-      }
-    }
-
-    stage('Prepare Deployment YAML') {
-      steps {
-        sh '''
-          cp deployment.yaml.template deployment.yaml
-          sed -i "s/__VERSION__/${APP_VERSION}/g" deployment.yaml
-        '''
       }
     }
 
@@ -93,6 +85,7 @@ spec:
       steps {
         container('kaniko') {
           sh '''
+            APP_VERSION=$(cat /workspace/APP_VERSION.txt)
             echo ">>> Checking workspace content:"
             ls -la /workspace
             echo ">>> Start Kaniko build"
@@ -114,7 +107,14 @@ spec:
       }
     }
 
-
+    stage('Prepare Deployment YAML') {
+      steps {
+        sh '''
+          cp deployment.yaml.template deployment.yaml
+          sed -i "s/__VERSION__/${APP_VERSION}/g" deployment.yaml
+        '''
+      }
+    }
 
   }
 }
