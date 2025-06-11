@@ -133,22 +133,24 @@ spec:
       }
     }
 
-    stage('Copy deployment.yaml to Jenkins Controller') {
-      agent { label 'control-plane' } // hoặc node có kubectl
-      environment {
-        NAMESPACE = 'jenkins'
-        LOCAL_PATH = 'deployment.yaml'
-        REMOTE_PATH = '/workspace/deployment.yaml'
-      }
+    stage('Copy deployment.yaml về Jenkins Controller') {
+      agent { label 'control-plane' } // hoặc control-plane nếu bạn đã gán label đó cho controller
       steps {
         script {
-          sh '''
-            echo "Tìm pod Kaniko đang chạy trong namespace $NAMESPACE..."
-            POD_NAME=$(kubectl get pods -n $NAMESPACE -o jsonpath="{.items[?(@.spec.containers[*].name=='kaniko')].metadata.name}" | awk '{print $1}')
+          def podName = sh(
+            script: '''
+              kubectl get pods -n jenkins \
+                -o jsonpath='{range .items[*]}{.metadata.name}{"\\t"}{.spec.containers[*].name}{"\\n"}{end}' \
+                | grep '\\bkaniko\\b' \
+                | awk '{print $1}'
+            ''',
+            returnStdout: true
+          ).trim()
 
-            echo "Sao chép file deployment.yaml từ pod $POD_NAME về $LOCAL_PATH"
-            kubectl cp $NAMESPACE/$POD_NAME:$REMOTE_PATH $LOCAL_PATH
-          '''
+          sh """
+            echo "Đang copy từ pod: $podName"
+            kubectl cp jenkins/$podName:/workspace/deployment.yaml ./deployment.yaml
+          """
         }
       }
     }
