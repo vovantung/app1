@@ -141,7 +141,13 @@ spec:
 
     stage('Test Deployment') {
       steps {
-        sh 'kubectl get nodes'
+        container('maven') {
+          script {
+            sh '''
+              kubectl get nodes
+            '''
+          }
+        }
       }
     }
 
