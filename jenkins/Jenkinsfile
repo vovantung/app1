@@ -10,22 +10,6 @@ spec:
     options:
       - name: ndots
         value: "1"
-  env:
-  - name: AWS_ACCESS_KEY_ID
-    valueFrom:
-      secretKeyRef:
-        name: aws-creds-kaniko
-        key: AWS_ACCESS_KEY_ID
-  - name: AWS_SECRET_ACCESS_KEY
-    valueFrom:
-      secretKeyRef:
-        name: aws-creds-kaniko
-        key: AWS_SECRET_ACCESS_KEY
-  - name: AWS_REGION
-    valueFrom:
-      secretKeyRef:
-        name: aws-creds-kaniko
-        key: AWS_REGION
   containers:
   - name: jnlp
     image: jenkins/inbound-agent:latest
@@ -44,6 +28,22 @@ spec:
     volumeMounts:
       - name: workspace-volume
         mountPath: /workspace
+    env:
+      - name: AWS_ACCESS_KEY_ID
+        valueFrom:
+          secretKeyRef:
+            name: aws-creds-kaniko
+            key: AWS_ACCESS_KEY_ID
+      - name: AWS_SECRET_ACCESS_KEY
+        valueFrom:
+          secretKeyRef:
+            name: aws-creds-kaniko
+            key: AWS_SECRET_ACCESS_KEY
+      - name: AWS_REGION
+        valueFrom:
+          secretKeyRef:
+            name: aws-creds-kaniko
+            key: AWS_REGION
   volumes:
     - name: workspace-volume
       emptyDir: {}
