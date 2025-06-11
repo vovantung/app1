@@ -90,7 +90,6 @@ spec:
         container('kaniko') {
           sh '''
             APP_VERSION=$(cat /workspace/version.txt)
-            echo $APP_VERSION
             echo ">>> Checking workspace content:"
             ls -la /workspace
             echo ">>> Start Kaniko build"
@@ -114,12 +113,24 @@ spec:
 
     stage('Prepare Deployment YAML') {
       steps {
-        sh '''
-          cp deployment.yaml.template deployment.yaml
-          sed -i "s/__VERSION__/${APP_VERSION}/g" deployment.yaml
-        '''
+        container('maven') {
+          script {
+            sh '''
+              APP_VERSION=$(cat /workspace/version.txt)
+              echo $APP_VERSION
+              cp deployment.yaml.template deployment.yaml
+              sed -i "s/__VERSION__/$APP_VERSION/g" deployment.yaml
+            '''
+          }
+        }
       }
     }
+
+//     stage('Deploy to Minikube') {
+//       steps {
+//         sh 'kubectl apply -f deployment.yaml'
+//       }
+//     }
 
   }
 }
