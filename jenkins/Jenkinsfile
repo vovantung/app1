@@ -68,6 +68,27 @@ spec:
       }
     }
 
+    stage('Get App Version') {
+      steps {
+        script {
+          sh '''
+            mvn -B -Dstyle.color=never help:evaluate -Dexpression=project.version -q -DforceStdout \
+            | sed -E 's/\\x1B\\[[0-9;]*[a-zA-Z]//g' > version.txt
+          '''
+          env.APP_VERSION = readFile('version.txt').trim()
+        }
+      }
+    }
+
+    stage('Prepare Deployment YAML') {
+      steps {
+        sh '''
+          cp deployment.yaml.template deployment.yaml
+          sed -i "s/__VERSION__/${APP_VERSION}/g" deployment.yaml
+        '''
+      }
+    }
+
     stage('Kaniko build, push image to ecr') {
       steps {
         container('kaniko') {
@@ -83,7 +104,7 @@ spec:
             /kaniko/executor \
               --context=/workspace \
               --dockerfile=/dockerfile \
-              --destination=${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} \
+              --destination=211125364313.dkr.ecr.ap-southeast-1.amazonaws.com/app1:$APP_VERSION \
               --verbosity=info \
               --reproducible \
               --cache=false \
