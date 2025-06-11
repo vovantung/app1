@@ -44,14 +44,9 @@ spec:
     volumeMounts:
       - name: workspace-volume
         mountPath: /workspace
-//       - name: docker-config
-//         mountPath: /kaniko/.docker
   volumes:
     - name: workspace-volume
       emptyDir: {}
-//     - name: docker-config
-//       secret:
-//         secretName: docker-to-ecr-secret  # <- Tên secret chứa config để push ECR
 """
     }
   }
