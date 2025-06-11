@@ -21,6 +21,8 @@ spec:
     volumeMounts:
       - name: workspace-volume
         mountPath: /workspace
+      - name: shared-deploy
+        mountPath: /workspace/shared-deploy
   - name: kaniko
     image: gcr.io/kaniko-project/executor:debug
     command: ['cat']
@@ -47,6 +49,10 @@ spec:
   volumes:
     - name: workspace-volume
       emptyDir: {}
+    - name: shared-deploy
+      hostPath:
+        path: /var/jenkins_home/shared-deploy
+        type: DirectoryOrCreate
 """
     }
   }
@@ -127,33 +133,16 @@ spec:
               echo $APP_VERSION
               cp deployment.yaml.template deployment.yaml
               sed -i "s/__VERSION__/$APP_VERSION/g" deployment.yaml
+
+              # Copy sang thư mục chung giữa pod và Jenkins controller
+              cp deployment.yaml /workspace/shared-deploy/
             '''
           }
         }
       }
     }
 
-    stage('Copy deployment.yaml về Jenkins Controller') {
-      agent { label 'control-plane' } // hoặc control-plane nếu bạn đã gán label đó cho controller
-      steps {
-        script {
-          def podName = sh(
-            script: '''
-              kubectl get pods -n jenkins \
-                -o jsonpath='{range .items[*]}{.metadata.name}{"\\t"}{.spec.containers[*].name}{"\\n"}{end}' \
-                | grep '\\bkaniko\\b' \
-                | awk '{print $1}'
-            ''',
-            returnStdout: true
-          ).trim()
 
-          sh """
-            echo "Đang copy từ pod: $podName"
-            kubectl cp jenkins/$podName:/workspace/deployment.yaml ./deployment.yaml
-          """
-        }
-      }
-    }
 
 
     stage('Deploy to Minikube') {
