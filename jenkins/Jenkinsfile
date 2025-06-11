@@ -147,9 +147,7 @@ spec:
         container('kubectl') {
           script {
             sh '''
-              kubectl get nodes
-              ls -la
-              cat deployment.yaml
+              kubectl apply -f deployment.yaml
             '''
           }
         }
