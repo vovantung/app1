@@ -70,13 +70,15 @@ spec:
 
     stage('Get App Version') {
       steps {
-        script {
-          sh '''
-            mvn -B -Dstyle.color=never help:evaluate -Dexpression=project.version -q -DforceStdout \
-            | sed -E 's/\\x1B\\[[0-9;]*[a-zA-Z]//g' > version.txt
-          '''
-          env.APP_VERSION = readFile('version.txt').trim()
-          writeFile file: '/workspace/APP_VERSION.txt', text: env.APP_VERSION
+        container('maven') {
+          script {
+            sh '''
+              mvn -B -Dstyle.color=never help:evaluate -Dexpression=project.version -q -DforceStdout \
+              | sed -E 's/\\x1B\\[[0-9;]*[a-zA-Z]//g' > /workspace/APP_VERSION.txt
+            '''
+             env.APP_VERSION = readFile('version.txt').trim()
+             writeFile file: '/workspace/APP_VERSION.txt', text: env.APP_VERSION
+          }
         }
       }
     }
@@ -86,6 +88,7 @@ spec:
         container('kaniko') {
           sh '''
             APP_VERSION=$(cat /workspace/APP_VERSION.txt)
+            echo $APP_VERSION
             echo ">>> Checking workspace content:"
             ls -la /workspace
             echo ">>> Start Kaniko build"
