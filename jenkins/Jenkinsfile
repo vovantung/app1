@@ -5,6 +5,11 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
+  dnsPolicy: ClusterFirst
+  dnsConfig:
+    options:
+      - name: ndots
+        value: "1"
   containers:
   - name: jnlp
     image: jenkins/inbound-agent:latest
