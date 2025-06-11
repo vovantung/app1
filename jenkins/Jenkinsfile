@@ -85,12 +85,11 @@ spec:
           script {
             sh '''
               mvn -B -Dstyle.color=never help:evaluate -Dexpression=project.version -q -DforceStdout \
-                            | sed -E 's/\\x1B\\[[0-9;]*[a-zA-Z]//g' > version.txt
+              | sed -E 's/\\x1B\\[[0-9;]*[a-zA-Z]//g' > version.txt
               cp -r . /workspace/
             '''
              env.APP_VERSION = readFile('version.txt').trim()
 //              writeFile file: '/workspace/APP_VERSION.txt', text: env.APP_VERSION
-
           }
         }
       }
@@ -103,12 +102,13 @@ spec:
             APP_VERSION=$(cat /workspace/version.txt)
             echo ">>> Checking workspace content:"
             ls -la /workspace
-            echo ">>> Start Kaniko build"
+            echo ">>> Checking folder target/ content:"
             ls -la /workspace/target
-            echo ">>> Check if Docker config is mounted:"
-            ls -la /kaniko/.docker
-            echo ">>> Print config.json:"
-            cat /kaniko/.docker/config.json || echo "config.json NOT FOUND!"
+            echo ">>> Check if credentials aws is mounted:"
+            ls -la /kaniko/.aws
+            echo ">>> Print credentials:"
+            cat /kaniko/.aws/credentials || echo "credentials NOT FOUND!"
+            echo ">>> Start Kaniko build"
             /kaniko/executor \
               --context=/workspace \
               --dockerfile=/dockerfile \
