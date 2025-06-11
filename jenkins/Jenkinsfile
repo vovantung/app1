@@ -136,6 +136,7 @@ spec:
 
               # Copy sang thư mục chung giữa pod và Jenkins controller
               cp deployment.yaml /workspace/shared-deploy/
+              ls -la /workspace/shared-deploy
             '''
           }
         }
@@ -145,11 +146,11 @@ spec:
 
 
 
-    stage('Deploy to Minikube') {
-      steps {
-        sh 'kubectl apply -f deployment.yaml'
-      }
-    }
+//     stage('Deploy to Minikube') {
+//       steps {
+//         sh 'kubectl apply -f deployment.yaml'
+//       }
+//     }
 
   }
 }
