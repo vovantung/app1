@@ -17,7 +17,7 @@ spec:
     image: jenkins/inbound-agent:latest
     tty: true
   - name: kubectl
-    image: vothinhuydt/jenkins-agent-kubectl:latest
+    image: vothinhuydt/jenkins-agent-kubectl:txu
     command: ['cat']
     tty: true
     volumeMounts:
