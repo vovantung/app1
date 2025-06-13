@@ -5,7 +5,6 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
-
   dnsPolicy: ClusterFirst
   dnsConfig:
     options:
