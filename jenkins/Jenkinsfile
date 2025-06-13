@@ -2,59 +2,59 @@ pipeline {
   agent {
     kubernetes {
       yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  dnsPolicy: ClusterFirst
-  dnsConfig:
-    options:
-      - name: ndots
-        value: "1"
-  serviceAccountName: jenkins-sa
-  containers:
-  - name: jnlp
-    image: jenkins/inbound-agent:latest
-    tty: true
-  - name: kubectl
-    image: vothinhuydt/jenkins-agent-kubectl:txu
-    command: ['cat']
-    tty: true
-    volumeMounts:
-      - name: workspace-volume
-        mountPath: /workspace
-  - name: maven
-    image: maven:3.9-eclipse-temurin-17
-    command: ['cat']
-    tty: true
-    volumeMounts:
-      - name: workspace-volume
-        mountPath: /workspace
-  - name: kaniko
-    image: gcr.io/kaniko-project/executor:debug
-    command: ['cat']
-    tty: true
-    volumeMounts:
-      - name: workspace-volume
-        mountPath: /workspace
-    env:
-      - name: AWS_ACCESS_KEY_ID
-        valueFrom:
-          secretKeyRef:
-            name: aws-creds-kaniko
-            key: AWS_ACCESS_KEY_ID
-      - name: AWS_SECRET_ACCESS_KEY
-        valueFrom:
-          secretKeyRef:
-            name: aws-creds-kaniko
-            key: AWS_SECRET_ACCESS_KEY
-      - name: AWS_REGION
-        valueFrom:
-          secretKeyRef:
-            name: aws-creds-kaniko
-            key: AWS_REGION
-  volumes:
-    - name: workspace-volume
-      emptyDir: {}
+        apiVersion: v1
+        kind: Pod
+        spec:
+          dnsPolicy: ClusterFirst
+          dnsConfig:
+            options:
+              - name: ndots
+                value: "1"
+          serviceAccountName: jenkins-sa
+          containers:
+          - name: jnlp
+            image: jenkins/inbound-agent:latest
+            tty: true
+          - name: kubectl
+            image: vothinhuydt/jenkins-agent-kubectl:txu
+            command: ['cat']
+            tty: true
+            volumeMounts:
+              - name: workspace-volume
+                mountPath: /workspace
+          - name: maven
+            image: maven:3.9-eclipse-temurin-17
+            command: ['cat']
+            tty: true
+            volumeMounts:
+              - name: workspace-volume
+                mountPath: /workspace
+          - name: kaniko
+            image: gcr.io/kaniko-project/executor:debug
+            command: ['cat']
+            tty: true
+            volumeMounts:
+              - name: workspace-volume
+                mountPath: /workspace
+            env:
+              - name: AWS_ACCESS_KEY_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: aws-creds-kaniko
+                    key: AWS_ACCESS_KEY_ID
+              - name: AWS_SECRET_ACCESS_KEY
+                valueFrom:
+                  secretKeyRef:
+                    name: aws-creds-kaniko
+                    key: AWS_SECRET_ACCESS_KEY
+              - name: AWS_REGION
+                valueFrom:
+                  secretKeyRef:
+                    name: aws-creds-kaniko
+                    key: AWS_REGION
+          volumes:
+            - name: workspace-volume
+              emptyDir: {}
 """
     }
   }
