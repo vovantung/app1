@@ -30,7 +30,7 @@ pipeline {
               - name: workspace-volume
                 mountPath: /workspace
           - name: kaniko
-            image: gcr.io/kaniko-project/executor:v1.20.1
+            image: gcr.io/kaniko-project/executor:v1.23.0-debug
             command: ['cat']
             tty: true
             volumeMounts:
